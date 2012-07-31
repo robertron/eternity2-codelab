@@ -1,5 +1,6 @@
 package de.otto.codelab.eternity2;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,14 +11,8 @@ import java.util.StringTokenizer;
 
 public class EternityIO {
 
-    public void save(final File file, final Piece[][] map) {
-        final StringBuilder builder = new StringBuilder();
-        for (final Piece[] row : map) {
-            for (final Piece piece : row) {
-                builder.append(piece).append("\t");
-            }
-            builder.append("\n");
-        }
+    public static void save(final File file, final Piece[][] pieces) {
+        final String builder = stringifyBoard(pieces);
 
         FileOutputStream stream = null;
         try {
@@ -42,22 +37,31 @@ public class EternityIO {
         System.out.println("File successfully saved to " + file.getAbsolutePath());
     }
 
-    public Piece[][] load(final File file, final int size) {
+    static String stringifyBoard(final Piece[][] pieces) {
+        final StringBuilder builder = new StringBuilder();
+        int i = 0;
+        for (final Piece[] row : pieces) {
+            int j = 0;
+            for (final Piece piece : row) {
+                builder.append(piece);
+                if (row.length - 1 > j) {
+                    builder.append("\t");
+                }
+                j++;
+            }
+            if (pieces.length - 1 > i) {
+                builder.append("\n");
+            }
+            i++;
+        }
+        return builder.toString();
+    }
 
+    public static Piece[][] load(final File file, final int size) {
         LineNumberReader lnr = null;
         try {
             lnr = new LineNumberReader(new FileReader(file));
-            final Piece[][] map = new Piece[size][];
-
-            String line = lnr.readLine();
-
-            int i = 0;
-            while (line != null) {
-                map[i] = parseLine(line, size);
-                line = lnr.readLine();
-                i++;
-            }
-            return map;
+            return load(lnr, size);
         }
         catch (final IOException e) {
             System.err.println("Error opening eternity file!");
@@ -73,7 +77,20 @@ public class EternityIO {
         return null;
     }
 
-    private static Piece[] parseLine(final String line, final int size) {
+    static Piece[][] load(final BufferedReader reader, final int size) throws IOException {
+        final Piece[][] map = new Piece[size][];
+        String line = reader.readLine();
+
+        int i = 0;
+        while (line != null) {
+            map[i] = parseLine(line, size);
+            line = reader.readLine();
+            i++;
+        }
+        return map;
+    }
+
+    static Piece[] parseLine(final String line, final int size) {
         final StringTokenizer stok = new StringTokenizer(line);
         final Piece[] pieces = new Piece[size];
 

@@ -30,6 +30,11 @@ public class Piece {
         return south;
     }
 
+    @Override
+    public String toString() {
+        return north + " " + east + " " + south + " " + west;
+    }
+
     public static Piece from(final int north, final int east, final int south, final int west) {
         return new Piece(north, east, south, west);
     }

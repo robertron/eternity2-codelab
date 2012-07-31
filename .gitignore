@@ -1,4 +1,6 @@
 build
+bin
+test-output
 .settings
 .gradle
 .classpath
