@@ -4,20 +4,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
 public class EternityIOTest {
-
-    @Test
-    public void shouldParseLineToPiece() {
-        final String testLine = "1 2 3 4     4 2 3 1";
-        final Piece[] result = EternityIO.parseLine(testLine, 2);
-
-        assertThat(result.length, is(2));
-        assertPiece(result[0], 1, 2, 3, 4);
-        assertPiece(result[1], 4, 2, 3, 1);
-    }
 
     @Test
     public void shouldRead2x2FileToPieces() {
@@ -28,14 +19,14 @@ public class EternityIOTest {
         assertThat(result[0].length, is(2));
         assertThat(result[1].length, is(2));
 
-        assertPiece(result[0][0], 2, 0, 0, 1);
-        assertPiece(result[0][1], 0, 2, 3, 0);
-        assertPiece(result[1][0], 0, 0, 4, 1);
-        assertPiece(result[1][1], 0, 0, 3, 4);
+        assertCorrectPiece(result[0][0], 2, 0, 0, 1);
+        assertCorrectPiece(result[0][1], 0, 2, 3, 0);
+        assertCorrectPiece(result[1][0], 0, 0, 4, 1);
+        assertCorrectPiece(result[1][1], 0, 0, 3, 4);
     }
 
     @Test
-    public void shouldStringifyBoard() {
+    public void shouldConvertBoardToString() {
         final Piece[][] pieces = new Piece[2][2];
 
         pieces[0] = new Piece[2];
@@ -46,13 +37,14 @@ public class EternityIOTest {
         pieces[1][0] = Piece.from(0, 2, 3, 4);
         pieces[1][1] = Piece.from(4, 3, 2, 0);
 
-        final String board = EternityIO.stringifyBoard(pieces);
+        final List<String> board = EternityIO.convert(pieces);
 
-        assertThat(board, is("1 2 3 4\t4 3 2 1\n0 2 3 4\t4 3 2 0"));
+        assertThat(board.get(0), is("1 2 3 4\t4 3 2 1"));
+        assertThat(board.get(1), is("0 2 3 4\t4 3 2 0"));
 
     }
 
-    private void assertPiece(final Piece piece, final int north, final int east, final int south, final int west) {
+    private void assertCorrectPiece(final Piece piece, final int north, final int east, final int south, final int west) {
         assertThat(piece.getNorth(), is(north));
         assertThat(piece.getEast(), is(east));
         assertThat(piece.getSouth(), is(south));

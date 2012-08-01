@@ -9,6 +9,6 @@ repositories {
 }
 
 dependencies {
-    compile "org.testng:testng:6.1.1", "org.hamcrest:hamcrest-all:1.1"
+    compile "org.testng:testng:6.1.1", "org.hamcrest:hamcrest-all:1.1", "commons-io:commons-io:2.4", "com.google.guava:guava:12.0"
 }
 

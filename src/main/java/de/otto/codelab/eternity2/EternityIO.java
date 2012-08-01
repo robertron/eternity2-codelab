@@ -1,23 +1,26 @@
 package de.otto.codelab.eternity2;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+
+import org.apache.commons.io.IOUtils;
+
+import com.google.common.base.Joiner;
 
 public class EternityIO {
 
     public static void save(final File file, final Piece[][] pieces) {
-        final String builder = stringifyBoard(pieces);
+        final List<String> board = convert(pieces);
 
-        FileOutputStream stream = null;
         try {
-            stream = new FileOutputStream(file);
-            stream.write(builder.toString().getBytes());
+            IOUtils.writeLines(board, "\n", new FileOutputStream(file));
+            System.out.println("File successfully saved to " + file.getAbsolutePath());
         }
         catch (final FileNotFoundException e) {
             System.err.println("Error saving eternity file!");
@@ -25,87 +28,52 @@ public class EternityIO {
         catch (final IOException e) {
             System.err.println("Error saving eternity file!");
         }
-        finally {
-            try {
-                stream.close();
-            }
-            catch (final IOException e) {
-                System.err.println("Couldn't close Stream!");
-            }
-        }
-
-        System.out.println("File successfully saved to " + file.getAbsolutePath());
-    }
-
-    static String stringifyBoard(final Piece[][] pieces) {
-        final StringBuilder builder = new StringBuilder();
-        int i = 0;
-        for (final Piece[] row : pieces) {
-            int j = 0;
-            for (final Piece piece : row) {
-                builder.append(piece);
-                if (row.length - 1 > j) {
-                    builder.append("\t");
-                }
-                j++;
-            }
-            if (pieces.length - 1 > i) {
-                builder.append("\n");
-            }
-            i++;
-        }
-        return builder.toString();
     }
 
     public static Piece[][] load(final File file, final int size) {
-        LineNumberReader lnr = null;
         try {
-            lnr = new LineNumberReader(new FileReader(file));
-            return load(lnr, size);
+            final List<String> lines = IOUtils.readLines(new FileReader(file));
+            return convert(lines, size);
+        }
+        catch (final FileNotFoundException e) {
+            System.err.println("Error loading eternity file!");
         }
         catch (final IOException e) {
-            System.err.println("Error opening eternity file!");
-        }
-        finally {
-            try {
-                lnr.close();
-            }
-            catch (final IOException e) {
-                System.err.println("Couldn't close LineNumberReader!");
-            }
+            System.err.println("Error loading eternity file!");
         }
         return null;
     }
 
-    static Piece[][] load(final BufferedReader reader, final int size) throws IOException {
-        final Piece[][] map = new Piece[size][];
-        String line = reader.readLine();
-
-        int i = 0;
-        while (line != null) {
-            map[i] = parseLine(line, size);
-            line = reader.readLine();
-            i++;
+    static List<String> convert(final Piece[][] pieces) {
+        final List<String> result = new ArrayList<String>();
+        for (final Piece[] row : pieces) {
+            final String line = Joiner.on("\t").join(row);
+            result.add(line);
         }
-        return map;
+        return result;
     }
 
-    static Piece[] parseLine(final String line, final int size) {
-        final StringTokenizer stok = new StringTokenizer(line);
-        final Piece[] pieces = new Piece[size];
+    static Piece[][] convert(final List<String> lines, final int size) {
+        final Piece[][] map = new Piece[size][];
+        int j = 0;
+        for (final String line : lines) {
+            final StringTokenizer stok = new StringTokenizer(line);
+            final Piece[] pieces = new Piece[size];
 
-        int i = 0;
-        while (stok.hasMoreTokens()) {
-            final Integer north = Integer.valueOf(stok.nextToken());
-            final Integer east = Integer.valueOf(stok.nextToken());
-            final Integer south = Integer.valueOf(stok.nextToken());
-            final Integer west = Integer.valueOf(stok.nextToken());
+            int i = 0;
+            while (stok.hasMoreTokens()) {
+                final Integer north = Integer.valueOf(stok.nextToken());
+                final Integer east = Integer.valueOf(stok.nextToken());
+                final Integer south = Integer.valueOf(stok.nextToken());
+                final Integer west = Integer.valueOf(stok.nextToken());
 
-            pieces[i] = Piece.from(north, east, south, west);
-            i++;
+                pieces[i] = Piece.from(north, east, south, west);
+                i++;
+            }
+            map[j] = pieces;
+            j++;
         }
-        return pieces;
-
+        return map;
     }
 
 }
